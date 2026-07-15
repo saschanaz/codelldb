@@ -1194,10 +1194,10 @@ impl DebugSession {
     }
 
     fn handle_read_memory(&mut self, args: ReadMemoryArguments) -> Result<ReadMemoryResponseBody, Error> {
-        let mem_ref = parse_int::parse::<i64>(&args.memory_reference)?;
+        let mem_ref = parse_int::parse::<u64>(&args.memory_reference)?;
         let offset = args.offset.unwrap_or(0);
+        let address = mem_ref.wrapping_add(offset as u64) as lldb::Address;
         let count = args.count as usize;
-        let address = (mem_ref + offset) as lldb::Address;
         let process = self.target.process();
         if let Ok(region_info) = process.memory_region_info(address) {
             if region_info.is_readable() {
@@ -1222,9 +1222,9 @@ impl DebugSession {
     }
 
     fn handle_write_memory(&mut self, args: WriteMemoryArguments) -> Result<WriteMemoryResponseBody, Error> {
-        let mem_ref = parse_int::parse::<i64>(&args.memory_reference)?;
+        let mem_ref = parse_int::parse::<u64>(&args.memory_reference)?;
         let offset = args.offset.unwrap_or(0);
-        let address = (mem_ref + offset) as lldb::Address;
+        let address = mem_ref.wrapping_add(offset as u64) as lldb::Address;
         let data = BASE64_STANDARD.decode(&args.data)?;
         let allow_partial = args.allow_partial.unwrap_or(false);
         let process = self.target.process();
