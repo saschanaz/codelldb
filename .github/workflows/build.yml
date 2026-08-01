@@ -44,6 +44,7 @@ jobs:
           rust_toolchain: x86_64-unknown-linux-gnu
           rust_targets: x86_64-unknown-linux-gnu
           platformid: linux-x64
+          shell: bash
 
         - os: Linux
           image: ubuntu-latest
@@ -51,6 +52,7 @@ jobs:
           rust_toolchain: x86_64-unknown-linux-gnu
           rust_targets: aarch64-unknown-linux-gnu
           platformid: linux-arm64
+          shell: bash
           cross: true
 
         - os: Linux
@@ -59,6 +61,7 @@ jobs:
           rust_toolchain: x86_64-unknown-linux-gnu
           rust_targets: armv7-unknown-linux-gnueabihf
           platformid: linux-armhf
+          shell: bash
           cross: true
 
         - os: MacOS
@@ -67,6 +70,7 @@ jobs:
           rust_toolchain: x86_64-apple-darwin
           rust_targets: x86_64-apple-darwin
           platformid: darwin-x64
+          shell: bash
 
         - os: MacOS
           image: macos-15
@@ -74,6 +78,7 @@ jobs:
           rust_toolchain: aarch64-apple-darwin
           rust_targets: aarch64-apple-darwin
           platformid: darwin-arm64
+          shell: bash
 
         - os: Windows
           image: windows-latest
@@ -82,6 +87,7 @@ jobs:
           rust_targets: x86_64-pc-windows-msvc
           platformid: win32-x64
           vcvars: vcvars64
+          shell: cmd
 
         - os: Windows
           image: windows-11-vs2026-arm
@@ -90,9 +96,14 @@ jobs:
           rust_targets: aarch64-pc-windows-msvc
           platformid: win32-arm64
           vcvars: vcvarsarm64
+          shell: cmd
 
     name: ${{ matrix.os }} ${{ matrix.platformid }}
     runs-on: ${{ matrix.image }}
+
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
 
     steps:
     - name: Checkout
@@ -143,12 +154,12 @@ jobs:
 
     - name: Setup (Windows)
       if: ${{ matrix.os == 'Windows' }}
-      shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}.bat" || call "C:\Program Files (x86)\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}.bat"
         set >> %GITHUB_ENV%
 
     - name: Download LLDB
+      shell: bash
       run: |
         # This should go away once https://github.com/vadimcn/lldb-build/pull/3 lands
         if [[ "${{ matrix.platformid }}" == "win32-arm64" ]]; then
@@ -163,6 +174,7 @@ jobs:
           --dir $RUNNER_TEMP
 
     - name: Configure
+      shell: bash
       run: |
         mkdir -p build
         cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -178,7 +190,6 @@ jobs:
         cat build/CMakeCache.txt
 
     - name: Build
-      shell: cmd
       run: |
         cmake --build build --target vsix_full
         mv build/codelldb-full.vsix build/codelldb-${{ matrix.platformid }}.vsix
