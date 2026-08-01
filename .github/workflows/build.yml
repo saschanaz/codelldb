@@ -46,12 +46,11 @@ jobs:
           platformid: linux-x64
 
         - os: Linux
-          image: ubuntu-latest
+          image: ubuntu-24.04-arm
           lldb_triple: aarch64-linux-gnu
-          rust_toolchain: x86_64-unknown-linux-gnu
+          rust_toolchain: aarch64-unknown-linux-gnu
           rust_targets: aarch64-unknown-linux-gnu
           platformid: linux-arm64
-          cross: true
 
         - os: Linux
           image: ubuntu-latest
@@ -126,7 +125,11 @@ jobs:
         CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS=-Clinker=clang -Clink-arg=--sysroot=$RUNNER_TEMP/sysroot -Clink-arg=-fuse-ld=lld -Clink-arg=--target=x86_64-unknown-linux-gnu
         CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_RUSTFLAGS=-Clinker=clang -Clink-arg=--sysroot=$RUNNER_TEMP/sysroot -Clink-arg=-fuse-ld=lld -Clink-arg=--target=armv7-unknown-linux-gnueabihf
         CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS=-Clinker=clang -Clink-arg=--sysroot=$RUNNER_TEMP/sysroot -Clink-arg=-fuse-ld=lld -Clink-arg=--target=aarch64-unknown-linux-gnu
-        LD_LIBRARY_PATH=$RUNNER_TEMP/sysroot/lib/x86_64-unknown-linux-gnu:$RUNNER_TEMP/clang/lib/x86_64-unknown-linux-gnu
+        if [[ "${{ matrix.platformid }}" == "linux-x64" ]]; then
+          LD_LIBRARY_PATH=$RUNNER_TEMP/sysroot/lib/x86_64-unknown-linux-gnu:$RUNNER_TEMP/clang/lib/x86_64-unknown-linux-gnu
+        else
+          LD_LIBRARY_PATH=$RUNNER_TEMP/sysroot/lib/aarch64-unknown-linux-gnu:$RUNNER_TEMP/clang/lib/aarch64-unknown-linux-gnu
+        fi
         EOF
 
         /usr/bin/Xvfb :99 -screen 0 1024x768x24 &

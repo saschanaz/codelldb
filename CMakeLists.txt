@@ -37,11 +37,19 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(DylibSuffix .so)
     set(NPM npm)
     set(PathSep ":")
-    set(DefaultTarget x86_64-unknown-linux-gnu)
-    set(DefaultPlatformId linux-x64)
-    set(AllowedDependencies linux-vdso.so.1 librt.so.1 libdl.so.2 libpthread.so.0 libgcc_s.so.1
-                            libm.so.6 libc.so.6 libz.so.1 libutil.so.1
-                            /lib64/ld-linux-x86-64.so.2)
+    if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+      set(DefaultTarget x86_64-unknown-linux-gnu)
+      set(DefaultPlatformId linux-x64)
+      set(AllowedDependencies linux-vdso.so.1 librt.so.1 libdl.so.2 libpthread.so.0 libgcc_s.so.1
+                              libm.so.6 libc.so.6 libz.so.1 libutil.so.1
+                              /lib64/ld-linux-x86-64.so.2)
+    elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+      set(DefaultTarget aarch64-unknown-linux-gnu)
+      set(DefaultPlatformId linux-arm64)
+      set(AllowedDependencies linux-vdso.so.1 librt.so.1 libdl.so.2 libpthread.so.0 libgcc_s.so.1
+                              libm.so.6 libc.so.6 libz.so.1 libutil.so.1
+                              /lib64/ld-linux-aarch64.so.2)
+    endif()
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(Python python3)
     set(LibPrefix lib)
@@ -312,7 +320,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(TestTriples x86_64-apple-darwin)
 else()
-    set(TestTriples x86_64-unknown-linux-gnu)
+    if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+        set(TestTriples x86_64-unknown-linux-gnu)
+    elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+        set(TestTriples aarch64-unknown-linux-gnu)
+    endif()
 endif()
 
 # Create adapter tests for each triple we need to test on the current platform
