@@ -81,13 +81,15 @@ jobs:
           rust_toolchain: x86_64-pc-windows-msvc
           rust_targets: x86_64-pc-windows-msvc
           platformid: win32-x64
+          vcvars: vcvars64
 
         - os: Windows
-          image: windows-11-arm
+          image: windows-11-vs2026-arm
           lldb_triple: aarch64-windows-msvc
           rust_toolchain: aarch64-pc-windows-msvc
           rust_targets: aarch64-pc-windows-msvc
           platformid: win32-arm64
+          vcvars: vcvarsarm64
 
     name: ${{ matrix.os }} ${{ matrix.platformid }}
     runs-on: ${{ matrix.image }}
@@ -143,14 +145,20 @@ jobs:
       if: ${{ matrix.os == 'Windows' }}
       shell: cmd
       run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" || call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}.bat" || call "C:\Program Files (x86)\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}.bat"
         set >> %GITHUB_ENV%
 
     - name: Download LLDB
       run: |
+        # This should go away once https://github.com/vadimcn/lldb-build/pull/3 lands
+        if [[ "${{ matrix.platformid }}" == "win32-arm64" ]]; then
+          LLDB_REPO_OWNER=saschanaz
+        else
+          LLDB_REPO_OWNER=vadimcn
+        fi
         export GH_TOKEN=${{ secrets.LLDB_BUILD_TOKEN }}
         gh release download ${{ env.lldb_release }} \
-          --repo vadimcn/lldb-build \
+          --repo $LLDB_REPO_OWNER/lldb-build \
           --pattern "lldb--${{ matrix.lldb_triple }}.zip" \
           --dir $RUNNER_TEMP
 
