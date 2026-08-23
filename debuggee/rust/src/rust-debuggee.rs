@@ -248,6 +248,12 @@ struct PyKeywords {
     raise: i32,
 }
 
+// Instantiating enum having a variant named the same as a struct used to crash older versions of LLDB
+struct Foo;
+enum Bar {
+    Foo(Foo),
+}
+
 static GLOBAL: i32 = 1234;
 
 pub fn misc() {
@@ -263,6 +269,8 @@ pub fn misc() {
         lambda: 3,
         raise: 4,
     };
+
+    let bar = Bar::Foo(Foo);
 
     println!("---"); // #BP_misc
     println!("---");
