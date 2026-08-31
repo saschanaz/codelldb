@@ -1,5 +1,14 @@
 # Release Notes
 
+# 1.12.3
+
+### Changed
+- Updated bundled LLDB to v22.1.8
+
+### Fixed
+- #1395: Import Rust visualizer script even if lldb_commands is missing
+- #1404: CodeLLDB view memory fails for high 64-bit addresses.
+
 # 1.12.2
 
 ### Fixed

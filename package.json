@@ -42,8 +42,8 @@
 		"@types/node": "^18.0.0",
 		"@types/mocha": "^10.0.0",
 		"@vscode/debugprotocol": "^1.68.0",
-		"@vscode/test-cli": "^0.0.11",
-		"@vscode/test-electron": "^2.5.2",
+		"@vscode/test-cli": "^0.0.15",
+		"@vscode/test-electron": "^3.1.0",
 		"@vscode/vsce": "^3.6.0",
 		"typescript": "^4.7.0",
 		"mocha": "^10.8.1",
@@ -111,7 +111,8 @@
 			{
 				"category": "LLDB",
 				"title": "Copy Value",
-				"command": "lldb.modules.copyValue"
+				"command": "lldb.modules.copyValue",
+	            "enablement": "viewItem == lldb.moduleProperty"
 			},
 			{
 				"category": "LLDB",
@@ -127,6 +128,11 @@
 				"category": "LLDB",
 				"title": "Command Prompt",
 				"command": "lldb.commandPrompt"
+			},
+			{
+				"category": "LLDB",
+				"title": "Execute Command...",
+				"command": "lldb.executeCommand"
 			},
 			{
 				"category": "LLDB",
@@ -198,6 +204,10 @@
 				{
 					"command": "lldb.modules.copyValue",
 					"when": "viewItem == lldb.moduleProperty"
+				},
+				{
+					"command": "lldb.executeCommand",
+					"when": "false"
 				}
 			],
 			"debug/callstack/context": [

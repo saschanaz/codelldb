@@ -22,7 +22,7 @@ defaults:
     shell: bash
 
 env:
-  lldb_release: codelldb/22.x-72
+  lldb_release: codelldb/22.x-74
   rust_version: 1.91.0
   version_suffix: ${{ inputs.final && ' ' || '-' }}
   SCCACHE_GHA_ENABLED: true
@@ -86,6 +86,7 @@ jobs:
           rust_toolchain: x86_64-pc-windows-msvc
           rust_targets: x86_64-pc-windows-msvc
           platformid: win32-x64
+          vctools: x86.x64
           vcvars: vcvars64
           shell: cmd
 
@@ -95,6 +96,7 @@ jobs:
           rust_toolchain: aarch64-pc-windows-msvc
           rust_targets: aarch64-pc-windows-msvc
           platformid: win32-arm64
+          vctools: arm64
           vcvars: vcvarsarm64
           shell: cmd
 
@@ -155,7 +157,7 @@ jobs:
     - name: Setup (Windows)
       if: ${{ matrix.os == 'Windows' }}
       run: |
-        call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}.bat" || call "C:\Program Files (x86)\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\${{ matrix.vcvars }}.bat"
+        for /f "usebackq delims=" %%i in (`vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.${{ matrix.vctools }} -find VC\Auxiliary\Build\${{ matrix.vcvars }}.bat`) do call "%%i"
         set >> %GITHUB_ENV%
 
     - name: Download LLDB
